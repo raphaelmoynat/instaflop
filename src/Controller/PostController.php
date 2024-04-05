@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Comment;
 use App\Entity\Post;
+use App\Form\CommentType;
 use App\Form\PostType;
 use App\Repository\PostRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -31,6 +33,7 @@ class PostController extends AbstractController
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()){
+            $post->setCreatedAt(new \DateTime());
 
 
 
@@ -54,11 +57,14 @@ class PostController extends AbstractController
     #[Route('/article/show/{id}', name: 'app_show')]
     public function show(Post $post): Response
     {
+        $comment = new Comment();
+        $form = $this->createForm(CommentType::class,$comment);
 
 
 
         return $this->render('post/show.html.twig', [
             "post"=>$post,
+            "form"=>$form->createView(),
 
         ]);
     }
@@ -92,6 +98,7 @@ class PostController extends AbstractController
 
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
+                $post->setCreatedAt(new \DateTime());
 
                 $manager->persist($post);
                 $manager->flush();
