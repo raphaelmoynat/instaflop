@@ -3,9 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Comment;
+use App\Entity\Image;
 use App\Entity\Post;
+use App\Entity\ReplyComment;
 use App\Form\CommentType;
+use App\Form\ImageType;
 use App\Form\PostType;
+use App\Form\ReplyCommentType;
 use App\Repository\PostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,12 +31,14 @@ class PostController extends AbstractController
     #[Route('/create/post', name: 'app_create_post')]
     public function create(Request $request, EntityManagerInterface $manager): Response
     {
+        if(!$this->getUser()){return $this->redirectToRoute("app_post");}
 
 
         $post = new Post();
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()){
+            $post->setAuthor($this->getUser());
             $post->setCreatedAt(new \DateTime());
 
 
@@ -54,17 +60,21 @@ class PostController extends AbstractController
         ]);
     }
 
-    #[Route('/article/show/{id}', name: 'app_show')]
+    #[Route('/post/show/{id}', name: 'app_show')]
     public function show(Post $post): Response
     {
         $comment = new Comment();
         $form = $this->createForm(CommentType::class,$comment);
+
+        $replyComment = new ReplyComment();
+        $formReply = $this->createForm(ReplyCommentType::class, $replyComment);
 
 
 
         return $this->render('post/show.html.twig', [
             "post"=>$post,
             "form"=>$form->createView(),
+            "formReply"=>$formReply->createView(),
 
         ]);
     }
@@ -72,13 +82,17 @@ class PostController extends AbstractController
     #[Route('/post/delete/{id}', name: 'app_delete_post')]
     public function delete(EntityManagerInterface $manager, Post $post):Response
     {
-
+        if($this->getUser() === $post->getAuthor()) {
 
 
             $manager->remove($post);
             $manager->flush();
 
             return $this->redirectToRoute("app_post");
+        }else{
+            return $this->redirectToRoute("app_post");
+
+        }
 
 
 
@@ -93,7 +107,7 @@ class PostController extends AbstractController
     {
         $form = $this->createForm(PostType::class, $post);
 
-
+        if($this->getUser() === $post->getAuthor()) {
 
 
             $form->handleRequest($request);
@@ -105,6 +119,9 @@ class PostController extends AbstractController
 
                 return $this->redirectToRoute("app_show", ["id" => $post->getId()]);
             }
+        }else{
+            return $this->redirectToRoute('app_post');
+        }
 
 
 
@@ -116,6 +133,25 @@ class PostController extends AbstractController
         ]);
 
     }
+
+    #[Route('/post/images/{id}', name:"post_image")]
+    public function addImage(Post $post):Response
+    {
+        if($this->getUser() === $post->getAuthor()) {
+
+            $image = new Image();
+            $formImage = $this->createForm(ImageType::class, $image);
+
+            return $this->render("post/image.html.twig", [
+                "post" => $post,
+                'formImage' => $formImage->createView()
+
+            ]);
+        }else{
+            return $this->redirectToRoute('app_post');
+        }
+    }
+
 
 
 }

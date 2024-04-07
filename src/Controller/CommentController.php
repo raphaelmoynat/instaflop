@@ -4,8 +4,10 @@ namespace App\Controller;
 
 
 use App\Entity\Comment;
+use App\Entity\Image;
 use App\Entity\Post;
 use App\Form\CommentType;
+use App\Form\ImageType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,12 +27,14 @@ class CommentController extends AbstractController
     #[Route('/comment/create/{id}', name: 'app_comment_create')]
     public function create(Request $request, EntityManagerInterface $manager, Post $post):Response
     {
+        if(!$this->getUser()){return $this->redirectToRoute("app_post");}
 
 
         $comment= new Comment();
         $form = $this->createForm(CommentType::class, $comment);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()){
+            $comment->setAuthor($this->getUser());
 
             $comment->setCreatedAt(new \DateTime());
 
@@ -49,6 +53,7 @@ class CommentController extends AbstractController
     #[Route('/comment/delete/{id}', name: 'delete_comment')]
     public function delete(Comment $comment, EntityManagerInterface $manager): Response
     {
+        if($this->getUser() === $comment->getAuthor()) {
 
             $post = $comment->getPost();
 
@@ -56,6 +61,9 @@ class CommentController extends AbstractController
             $manager->flush();
 
             return $this->redirectToRoute('app_show', ["id" => $post->getId()]);
+        }else{
+            return $this->redirectToRoute('app_post');
+        }
 
 
     }
@@ -66,7 +74,7 @@ class CommentController extends AbstractController
         $post = $comment->getPost();
         $form = $this->createForm(CommentType::class, $comment);
 
-
+        if($this->getUser() === $comment->getAuthor()) {
 
 
             $form->handleRequest($request);
@@ -78,6 +86,9 @@ class CommentController extends AbstractController
 
                 return $this->redirectToRoute("app_show", ["id" => $post->getId()]);
             }
+        }else{
+            return $this->redirectToRoute('app_post');
+        }
 
 
 
@@ -86,5 +97,23 @@ class CommentController extends AbstractController
             "form"=>$form->createView(),
         ]);
 
+    }
+
+    #[Route('/comment/image/{id}', name:"comment_image")]
+    public function addImage(Comment $comment):Response
+    {
+        $image = new Image();
+        $formImage = $this->createForm(ImageType::class, $image);
+
+        if($this->getUser() === $comment->getAuthor()) {
+
+            return $this->render("comment/image.html.twig", [
+                "comment" => $comment,
+                'formImage' => $formImage->createView()
+
+            ]);
+        }else{
+            return $this->redirectToRoute('app_article');
+        }
     }
 }
