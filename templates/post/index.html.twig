@@ -15,9 +15,19 @@
 
                     <div class="card-body">
                         <div class="card-title d-flex justify-content-between">
-
+                            {# Afficher le contenu du nouveau tweet en haut #}
+                            {% if post.retweetContent %}
+                                <h5>{{ post.retweetContent }}</h5>
+                                <hr>
+                                <hr>
+                                {% for retweet in post.retweets %}
+                                <div>{{ retweet.post.content }}</div>
+                                {% endfor %}
+                            {% else %}
+                                <h5 class="card-text d-flex justify-content-center">{{ post.content }}</h5>
+                            {% endif %}
                         </div>
-                        <h5 class="card-text d-flex justify-content-center">{{ post.content }}</h5>
+
 
                     </div>
                     <div class="card-footer d-flex justify-content-between bg-insta">
@@ -47,6 +57,8 @@
 
                             <a href="{{ path("app_show",{id:post.id}) }}" class="btn btn-light mt-3"><i class="bi bi-repeat"></i></a>
                             <a href="{{ path("app_show",{id:post.id}) }}" class="btn btn-light mt-3"><i class="bi bi-caret-right-fill"></i></a>
+                            <a href="{{ path('app_retweet', {'id': post.id}) }}" class="btn btn-light mt-3">Retweet</a>
+
 
 
                         </div>

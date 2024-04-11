@@ -32,11 +32,22 @@ class Post
     #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'post')]
     private Collection $images;
 
+    #[ORM\OneToMany(targetEntity: Retweet::class, mappedBy: 'post', orphanRemoval: true)]
+    private Collection $retweets;
+
+    #[ORM\OneToMany(targetEntity: ReplyComment::class, mappedBy: 'post', orphanRemoval: true)]
+    private Collection $replyComments;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $retweetContent = null;
+
 
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->images = new ArrayCollection();
+        $this->retweets = new ArrayCollection();
+        $this->replyComments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -136,6 +147,78 @@ class Post
                 $image->setPost(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Retweet>
+     */
+    public function getRetweets(): Collection
+    {
+        return $this->retweets;
+    }
+
+    public function addRetweet(Retweet $retweet): static
+    {
+        if (!$this->retweets->contains($retweet)) {
+            $this->retweets->add($retweet);
+            $retweet->setPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRetweet(Retweet $retweet): static
+    {
+        if ($this->retweets->removeElement($retweet)) {
+            // set the owning side to null (unless already changed)
+            if ($retweet->getPost() === $this) {
+                $retweet->setPost(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ReplyComment>
+     */
+    public function getReplyComments(): Collection
+    {
+        return $this->replyComments;
+    }
+
+    public function addReplyComment(ReplyComment $replyComment): static
+    {
+        if (!$this->replyComments->contains($replyComment)) {
+            $this->replyComments->add($replyComment);
+            $replyComment->setPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReplyComment(ReplyComment $replyComment): static
+    {
+        if ($this->replyComments->removeElement($replyComment)) {
+            // set the owning side to null (unless already changed)
+            if ($replyComment->getPost() === $this) {
+                $replyComment->setPost(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getRetweetContent(): ?string
+    {
+        return $this->retweetContent;
+    }
+
+    public function setRetweetContent(?string $retweetContent): static
+    {
+        $this->retweetContent = $retweetContent;
 
         return $this;
     }

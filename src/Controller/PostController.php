@@ -22,6 +22,9 @@ class PostController extends AbstractController
     #[Route('/post', name: 'app_post')]
     public function index(PostRepository $postRepository): Response
     {
+
+
+
         return $this->render('post/index.html.twig', [
             'controller_name' => 'PostController',
             "posts"=>$postRepository->findAll(),
@@ -63,18 +66,27 @@ class PostController extends AbstractController
     #[Route('/post/show/{id}', name: 'app_show')]
     public function show(Post $post): Response
     {
+
+        $replyForms = [];
+
+        foreach ($post->getComments() as $commentItem) {
+            $replyForm = $this->createForm(ReplyCommentType::class, new ReplyComment());
+            $replyForms['replyForm_' . $commentItem->getId()] = $replyForm->createView();
+        }
+
+        $replyCommentForm = $this->createForm(ReplyCommentType::class, new ReplyComment());
+
+
         $comment = new Comment();
         $form = $this->createForm(CommentType::class,$comment);
-
-        $replyComment = new ReplyComment();
-        $formReply = $this->createForm(ReplyCommentType::class, $replyComment);
 
 
 
         return $this->render('post/show.html.twig', [
             "post"=>$post,
             "form"=>$form->createView(),
-            "formReply"=>$formReply->createView(),
+            'replyForms' => $replyForms,
+            'replyCommentForm' => $replyCommentForm->createView(),
 
         ]);
     }

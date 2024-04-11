@@ -22,53 +22,31 @@ use Symfony\Component\Routing\Attribute\Route;
 class ReplyCommentController extends AbstractController
 {
     #[Route('/reply/comment/{id}', name: 'app_reply_comment')]
-    public function index($id, Request $request, EntityManagerInterface $manager, CommentRepository $commentRepository): Response
+    public function index($id, Request $request, EntityManagerInterface $manager, Comment $comment): Response
     {
-        //determiner la route utilisée
-        $route = $request->attributes->get("_route");
+        if (!$this->getUser()) {
 
-        //en fonction de la route, récuperer la bonne entité
-
-        switch ($route){
-
-            case 'app_reply_comment':
-                $entity = ReplyComment::class;
-                $setter = "setComment";
-                $redirectRoute = "app_post";
-                break;
-
-
+            return $this->redirectToRoute("app_post");
         }
 
+        $post = $comment->getPost();
 
-        $toBeReply= $commentRepository->find($id);
-        $existingReply = $toBeReply->getReplyComments();
-
-
-
-        $reply = new ReplyComment();
-        $formReply = $this->createForm(ReplyCommentType::class, $reply);
-        $formReply->handleRequest($request);
-        if($formReply->isSubmitted() && $formReply->isValid())
-        {
-            if($existingReply->count() > 0){
-                return $this->redirectToRoute($redirectRoute);
-
-            }else{
-                $reply->$setter($toBeReply);
-                $manager->persist($reply);
-                $manager->flush();
-
-            }
-
-
+        $replyComment = new ReplyComment();
+        $form = $this->createForm(ReplyCommentType::class, $replyComment);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $replyComment->setPost($post);
+            $replyComment->setComment($comment);
+            $manager->persist($replyComment);
+            $manager->flush();
 
         }
-
-
-
-        return $this->redirectToRoute($redirectRoute);
+        return $this->redirectToRoute("app_show", ["id" => $post->getId()]);
     }
+
+
+
+
 
 
 

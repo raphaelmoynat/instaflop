@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+
+    <hr>
+
+    {{ form_start(form) }}
+    {{ form_row(form.content) }}
+
+    <button type="submit" class="btn btn-primary">Retweeter</button>
+    {{ form_end(form) }}
+{% endblock %}

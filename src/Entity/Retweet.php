@@ -2,26 +2,22 @@
 
 namespace App\Entity;
 
-use App\Repository\ReplyCommentRepository;
+use App\Repository\RetweetRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ReplyCommentRepository::class)]
-class ReplyComment
+#[ORM\Entity(repositoryClass: RetweetRepository::class)]
+class Retweet
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $content = null;
 
-    #[ORM\ManyToOne(inversedBy: 'replyComments')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Comment $comment = null;
-
-    #[ORM\ManyToOne(inversedBy: 'replyComments')]
+    #[ORM\ManyToOne(inversedBy: 'retweets')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Post $post = null;
 
@@ -35,21 +31,9 @@ class ReplyComment
         return $this->content;
     }
 
-    public function setContent(string $content): static
+    public function setContent(?string $content): static
     {
         $this->content = $content;
-
-        return $this;
-    }
-
-    public function getComment(): ?Comment
-    {
-        return $this->comment;
-    }
-
-    public function setComment(?Comment $comment): static
-    {
-        $this->comment = $comment;
 
         return $this;
     }
