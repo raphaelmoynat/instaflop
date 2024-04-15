@@ -7,7 +7,7 @@
         {% if app.user %}
             {% if app.user.image is not empty %}
                 {% for image in app.user.image %}
-                    <a class="navbar-brand" href="#">Instaflop</a>
+                    <a class="navbar-brand text-light" href="#">Instaflop</a>
                     <a class="navbar-brand active d-flex text-light" aria-current="page" href="{{ path("user_avatar",{id:app.user.id}) }}">
                         <img class="img-fluid mx-1 rounded-circle" style="max-width: 150px; max-height: 150px;" src="{{ vich_uploader_asset(image)|imagine_filter('petite_vignette') }}" alt="">
                         <div>{{ app.user.username }}</div>
@@ -15,6 +15,7 @@
 
                 {% endfor %}
             {% else %}
+                <a class="navbar-brand text-light" href="#">Instaflop</a>
                 <a class="navbar-brand active d-flex text-light" aria-current="page" href="{{ path("user_avatar",{id:app.user.id}) }}" >
                     <img class="img-fluid mx-1 rounded-circle" style="max-width: 150px; max-height: 150px;" src="{{ asset("images/no_avatar.png")|imagine_filter('petite_vignette') }}" alt="">
                     <div>{{ app.user.username }}</div>

@@ -59,7 +59,8 @@ class PostController extends AbstractController
         return $this->render('post/create.html.twig', [
             "post"=>$post,
             "form"=>$form->createView(),
-            "btnValue"=>"Poster"
+            "btnValue"=>"Poster",
+
         ]);
     }
 
@@ -164,6 +165,38 @@ class PostController extends AbstractController
         }
     }
 
+    public function getRetwoot(): ?self
+    {
+        return $this->retwoot;
+    }
 
+    public function setRetwoot(?self $retwoot): static
+    {
+        $this->retwoot = $retwoot;
 
+        return $this;
+    }
+    #[Route('/retweet/{id}', name: 'app_retweet')]
+    public function retweet(Request $request, EntityManagerInterface $manager, Post $post): Response
+    {
+        $retweet = new Post();
+
+        $form = $this->createForm(PostType::class, $retweet);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $retweet->setRetweet($post);
+            $retweet->setCreatedAt(new \DateTime());
+            $retweet->setAuthor($this->getUser());
+            $manager->persist($retweet);
+            $manager->flush();
+
+            return $this->redirectToRoute('app_post');
+        }
+
+        return $this->render('post/create.html.twig', [
+            'form' => $form->createView(),
+            'btnValue' => "Retweet"
+        ]);
+    }
 }

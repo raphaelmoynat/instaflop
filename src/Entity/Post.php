@@ -32,21 +32,24 @@ class Post
     #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'post')]
     private Collection $images;
 
-    #[ORM\OneToMany(targetEntity: Retweet::class, mappedBy: 'post', orphanRemoval: true)]
-    private Collection $retweets;
+
 
     #[ORM\OneToMany(targetEntity: ReplyComment::class, mappedBy: 'post', orphanRemoval: true)]
     private Collection $replyComments;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $retweetContent = null;
+
+
+    #[ORM\ManyToOne(targetEntity: self::class)]
+    #[ORM\JoinColumn(name: 'retweet_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
+    private ?self $retweet = null;
+
+
 
 
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->images = new ArrayCollection();
-        $this->retweets = new ArrayCollection();
         $this->replyComments = new ArrayCollection();
     }
 
@@ -219,6 +222,18 @@ class Post
     public function setRetweetContent(?string $retweetContent): static
     {
         $this->retweetContent = $retweetContent;
+
+        return $this;
+    }
+
+    public function getRetweet(): ?self
+    {
+        return $this->retweet;
+    }
+
+    public function setRetweet(?self $retweet): static
+    {
+        $this->retweet = $retweet;
 
         return $this;
     }

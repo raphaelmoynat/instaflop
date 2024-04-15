@@ -7,11 +7,40 @@
         <!-- Post -->
         <div class="d-flex flex-column justify-content-center align-items-center mb-3">
             <div class="card h-100 col-6 rounded-card bg-border" style="min-height: 150px;">
-                <div class="card-header">
+
                     {% include 'image/image_or_not_image.html.twig' with {object:post} %}
-                </div>
+
                 <div class="card-body">
                     <h5 class="card-text d-flex justify-content-center">{{ post.content }}</h5>
+
+
+                    {% if post.retweet %}
+
+                        <div class="card rounded-card bg-border m-5" style="min-height: 150px;">
+
+                            {% include 'image/image_or_not_image.html.twig' with {object:post.retweet} %}
+
+                            <div class="card-body">
+                                <h5 class="card-text d-flex justify-content-center">{{ post.retweet.content }}</h5>
+                            </div>
+                            <div class="card-footer d-flex justify-content-between bg-insta">
+                                <small class="text-muted mt-3 d-flex flex-column">
+                                    <div class="mb-2 text-white">
+                                        {% if post.retweet.author.image is not empty %}
+                                            {% for image in post.retweet.author.image %}
+                                                <img class="img-fluid rounded-circle " style=" object-fit: cover;" src="{{ vich_uploader_asset(image)|imagine_filter('petite_vignette') }}" alt="">
+                                            {% endfor %}
+                                        {% else %}
+                                            <img class="img-fluid mx-1  rounded-3" style="max-width: 150px; max-height: 150px;" src="{{ asset("images/no_avatar.png")|imagine_filter('petite_vignette') }}" alt="">
+                                        {% endif%}
+                                        {{ post.retweet.author.username }}
+                                    </div>
+                                    <div class="text-white">{{ post.retweet.createdAt|date("d/m/Y H:i") }}</div>
+                                </small>
+                            </div>
+
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="card-footer d-flex justify-content-between bg-insta">
                     <small class="text-muted mt-3 d-flex flex-column">
@@ -49,8 +78,9 @@
             <div class="row">
                 <div class="container d-flex flex-column justify-content-center col-6 mb-3">
 
-                {% for comment in post.comments %}
-                        <div class="card mb-5">
+                {% for comment in post.comments|reverse %}
+                    <div class="mb-4">
+                        <div class="card">
 
                             <div class="card-body">
                                 <div class="row">
@@ -60,7 +90,22 @@
                                 </div>
                             </div>
                             <div class="card-footer d-flex justify-content-between align-items-center bg-insta">
-                                <div class="text-light">{{ comment.createdAt|date("d/m/Y H:i") }}</div>
+                                <div>
+                                    <div class="d-flex">
+                                        {% if comment.author.image is not empty %}
+                                            {% for image in comment.author.image %}
+                                                <img class="img-fluid rounded-circle " style=" object-fit: cover;" src="{{ vich_uploader_asset(image)|imagine_filter('petite_vignette') }}" alt="">
+                                            {% endfor %}
+                                        {% else %}
+                                            <img class="img-fluid mx-1  rounded-3" style="max-width: 150px; max-height: 150px;" src="{{ asset("images/no_avatar.png")|imagine_filter('petite_vignette') }}" alt="">
+                                        {% endif%}
+                                        <div class="text-light">{{ comment.author.username }}</div>
+
+                                    </div>
+
+                                    <div class="text-light">{{ comment.createdAt|date("d/m/Y H:i") }}</div>
+                                </div>
+
 
                                 <div class="btn-group " role="group">
                                     <a href="{{ path("edit_comment",{id:comment.id}) }}" class="btn btn-light"><i class="bi bi-pencil"></i></a>
@@ -71,14 +116,14 @@
                             </div>
                         </div>
                             {% for replyComment in comment.replyComments %}
-                            <div class="card mt-2">
+                            <div class="card">
 
                                 <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-8">
+
+
                                             <p class="card-text">{{ replyComment.content }}</p>
-                                        </div>
-                                    </div>
+
+
                                 </div>
                             </div>
                             {% endfor %}
@@ -89,6 +134,7 @@
                             <button type="submit" class="btn btn-primary">Reply</button>
                         </div>
                         {{ form_end(replyForms['replyForm_' ~ comment.id]) }}
+                    </div>
 
                 {% endfor %}
                 </div>

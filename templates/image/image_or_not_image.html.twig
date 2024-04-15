@@ -1,4 +1,5 @@
 {% if object.images is not empty %}
+    <div class="card-header">
 
     <div id="carouselArticle" class="carousel slide" data-bs-ride="carousel" style="height: 300px;">
         <div class="carousel-indicators">
@@ -23,8 +24,9 @@
         </button>
     </div>
 
+    </div>
+
 {% else %}
 
-    <img  class="d-block w-100 img-fluid rounded-3" style="height: 150px; width: auto; object-fit: cover;" src="{{ asset('images/no_image.png') }}" alt="">
 
 {% endif %}
