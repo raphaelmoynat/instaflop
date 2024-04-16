@@ -45,11 +45,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'avatar')]
     private Collection $image;
 
+    #[ORM\OneToMany(targetEntity: ReplyComment::class, mappedBy: 'author', orphanRemoval: true)]
+    private Collection $replyComments;
+
     public function __construct()
     {
         $this->posts = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->image = new ArrayCollection();
+        $this->replyComments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -210,6 +214,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($image->getAvatar() === $this) {
                 $image->setAvatar(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ReplyComment>
+     */
+    public function getReplyComments(): Collection
+    {
+        return $this->replyComments;
+    }
+
+    public function addReplyComment(ReplyComment $replyComment): static
+    {
+        if (!$this->replyComments->contains($replyComment)) {
+            $this->replyComments->add($replyComment);
+            $replyComment->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReplyComment(ReplyComment $replyComment): static
+    {
+        if ($this->replyComments->removeElement($replyComment)) {
+            // set the owning side to null (unless already changed)
+            if ($replyComment->getAuthor() === $this) {
+                $replyComment->setAuthor(null);
             }
         }
 

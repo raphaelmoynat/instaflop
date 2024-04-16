@@ -179,6 +179,9 @@ class PostController extends AbstractController
     #[Route('/retweet/{id}', name: 'app_retweet')]
     public function retweet(Request $request, EntityManagerInterface $manager, Post $post): Response
     {
+
+        if(!$this->getUser()){return $this->redirectToRoute("app_post");}
+
         $retweet = new Post();
 
         $form = $this->createForm(PostType::class, $retweet);
@@ -197,6 +200,17 @@ class PostController extends AbstractController
         return $this->render('post/create.html.twig', [
             'form' => $form->createView(),
             'btnValue' => "Retweet"
+        ]);
+    }
+
+    #[Route('/my_posts', name: 'app_my_posts')]
+    public function myPost(PostRepository $postRepository ): Response
+    {
+        $user = $this->getUser();
+
+        $posts = $postRepository->findBy(['author' => $user]);
+        return $this->render('post/index.html.twig', [
+            'posts' => $posts
         ]);
     }
 }

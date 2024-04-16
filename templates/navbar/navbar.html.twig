@@ -22,7 +22,7 @@
                 </a>
             {% endif %}
         {% else %}
-            <a class="navbar-brand" href="#">Instaflop</a>
+            <a class="navbar-brand text-light" href="#">Instaflop</a>
         {% endif %}
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,17 +31,20 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{{ path("app_post") }}" style="font-size: 1.2rem;">Posts</a>
+                    <a class="nav-link active text-light" aria-current="page" href="{{ path("app_post") }}" style="font-size: 1.2rem;">Posts</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ path("app_create_post") }}" style="font-size: 1.2rem;">Ajouter</a>
+                    <a class="nav-link text-white" href="{{ path('app_my_posts') }}" style="font-size: 1.2rem;">My Posts</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-light" href="{{ path("app_create_post") }}" style="font-size: 1.2rem;">Ajouter</a>
                 </li>
 
                 {% if app.user %}
-                    <a class="nav-link" href="{{ path('app_logout') }}" style="font-size: 1.2rem;">Log out</a>
+                    <a class="nav-link text-light" href="{{ path('app_logout') }}" style="font-size: 1.2rem;">Log out</a>
                 {% else %}
-                    <a class="nav-link" href="{{ path('app_register') }}" style="font-size: 1.2rem;">Register</a>
-                    <a class="nav-link" href="{{ path('app_login') }}" style="font-size: 1.2rem;">Log in</a>
+                    <a class="nav-link text-light" href="{{ path('app_register') }}" style="font-size: 1.2rem;">Register</a>
+                    <a class="nav-link text-light" href="{{ path('app_login') }}" style="font-size: 1.2rem;">Log in</a>
                 {% endif %}
             </ul>
         </div>

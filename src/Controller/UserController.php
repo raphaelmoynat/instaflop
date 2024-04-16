@@ -14,6 +14,9 @@ class UserController extends AbstractController
     #[Route('/user/avatar/{id}', name:"user_avatar")]
     public function addAvatar(\App\Entity\User $user):Response
     {
+        if(!$this->getUser()){return $this->redirectToRoute("app_post");}
+
+
         $image = new Image();
         $form = $this->createForm(ImageType::class, $image);
 
@@ -21,5 +24,9 @@ class UserController extends AbstractController
             "user"=>$user,
             'form'=>$form->createView()
         ]);
+
+
+
+
     }
 }

@@ -116,7 +116,7 @@
                             </div>
                         </div>
                             {% for replyComment in comment.replyComments %}
-                            <div class="card">
+                            <div class="card m-1">
 
                                 <div class="card-body">
 
@@ -125,6 +125,10 @@
 
 
                                 </div>
+                                <div class="card-footer d-flex justify-content-between align-items-center bg-insta">
+                                    <p class="card-text text-light">{{ replyComment.author.username }}</p>
+                                </div>
+
                             </div>
                             {% endfor %}
 

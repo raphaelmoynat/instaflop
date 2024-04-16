@@ -37,6 +37,7 @@ class ReplyCommentController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $replyComment->setPost($post);
             $replyComment->setComment($comment);
+            $replyComment->setAuthor($this->getUser());
             $manager->persist($replyComment);
             $manager->flush();
 

@@ -25,6 +25,8 @@ class ImageController extends AbstractController
     public function index($id, Request $request, EntityManagerInterface $manager, PostRepository $postRepository, CommentRepository $commentRepository, UserRepository $userRepository): Response
     {
 
+
+
         //determiner la route utilisée
         $route = $request->attributes->get("_route");
 
@@ -62,6 +64,8 @@ class ImageController extends AbstractController
 
 
         }
+
+
 
 
         $image = new Image();

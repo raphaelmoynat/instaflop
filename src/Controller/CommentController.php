@@ -113,7 +113,7 @@ class CommentController extends AbstractController
 
             ]);
         }else{
-            return $this->redirectToRoute('app_article');
+            return $this->redirectToRoute('app_post');
         }
     }
 }
