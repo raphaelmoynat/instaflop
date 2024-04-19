@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -48,12 +49,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: ReplyComment::class, mappedBy: 'author', orphanRemoval: true)]
     private Collection $replyComments;
 
+    #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'author', orphanRemoval: true)]
+    private Collection $likes;
+
+    #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'followers')]
+    private Collection $follow;
+
+    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'follow')]
+    private Collection $followers;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $biography = null;
+
     public function __construct()
     {
         $this->posts = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->image = new ArrayCollection();
         $this->replyComments = new ArrayCollection();
+        $this->likes = new ArrayCollection();
+        $this->follow = new ArrayCollection();
+        $this->followers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -246,6 +262,112 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $replyComment->setAuthor(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Like>
+     */
+    public function getLikes(): Collection
+    {
+        return $this->likes;
+    }
+
+    public function addLike(Like $like): static
+    {
+        if (!$this->likes->contains($like)) {
+            $this->likes->add($like);
+            $like->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLike(Like $like): static
+    {
+        if ($this->likes->removeElement($like)) {
+            // set the owning side to null (unless already changed)
+            if ($like->getAuthor() === $this) {
+                $like->setAuthor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getFollow(): Collection
+    {
+        return $this->follow;
+    }
+
+    public function addFollow(self $follow): static
+    {
+        if (!$this->follow->contains($follow)) {
+            $this->follow->add($follow);
+        }
+
+        return $this;
+    }
+
+    public function removeFollow(self $follow): static
+    {
+        $this->follow->removeElement($follow);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getFollowers(): Collection
+    {
+        return $this->followers;
+    }
+
+    public function addFollower(self $follower): static
+    {
+        if (!$this->followers->contains($follower)) {
+            $this->followers->add($follower);
+            $follower->addFollow($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFollower(self $follower): static
+    {
+        if ($this->followers->removeElement($follower)) {
+            $follower->removeFollow($this);
+        }
+
+        return $this;
+    }
+
+    public function isFollowedBy(User $user):bool
+    {
+        $isFollowed = false;
+        foreach ($this->getFollowers() as $follower)
+        {
+            if($follower === $user)
+            {
+                $isFollowed = true;
+            }
+        }
+        return $isFollowed;
+    }
+
+    public function getBiography(): ?string
+    {
+        return $this->biography;
+    }
+
+    public function setBiography(?string $biography): static
+    {
+        $this->biography = $biography;
 
         return $this;
     }

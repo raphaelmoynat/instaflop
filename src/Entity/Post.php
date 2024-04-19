@@ -43,6 +43,9 @@ class Post
     #[ORM\JoinColumn(name: 'retweet_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
     private ?self $retweet = null;
 
+    #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'post', orphanRemoval: true)]
+    private Collection $likes;
+
 
 
 
@@ -51,6 +54,7 @@ class Post
         $this->comments = new ArrayCollection();
         $this->images = new ArrayCollection();
         $this->replyComments = new ArrayCollection();
+        $this->likes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -236,6 +240,46 @@ class Post
         $this->retweet = $retweet;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Like>
+     */
+    public function getLikes(): Collection
+    {
+        return $this->likes;
+    }
+
+    public function addLike(Like $like): static
+    {
+        if (!$this->likes->contains($like)) {
+            $this->likes->add($like);
+            $like->setPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLike(Like $like): static
+    {
+        if ($this->likes->removeElement($like)) {
+            // set the owning side to null (unless already changed)
+            if ($like->getPost() === $this) {
+                $like->setPost(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isLikedBy(User $user):bool
+    {
+        foreach ($this->likes as $like){
+            if($like->getAuthor() === $user){
+                return true;
+            }
+        }
+        return false;
     }
 
 

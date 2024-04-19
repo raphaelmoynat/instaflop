@@ -36,7 +36,9 @@
                                         {% else %}
                                             <img class="img-fluid mx-1  rounded-3" style="max-width: 150px; max-height: 150px;" src="{{ asset("images/no_avatar.png")|imagine_filter('petite_vignette') }}" alt="">
                                         {% endif%}
-                                        {{ post.retweet.author.username }}
+                                        <a class="text-light text-decoration-none" href="{{  path('app_profil', {'id': post.retweet.author.id}) }}">
+                                            {{ post.retweet.author.username }}
+                                        </a>
                                     </div>
                                     <div class="text-white">{{ post.retweet.createdAt|date("d/m/Y H:i") }}</div>
                                 </small>
@@ -44,6 +46,8 @@
 
                         </div>
                         {% endif %}
+                        {% include 'like/button.html.twig' with { routeName:"app_like", object:post } %}
+
 
 
 
@@ -63,7 +67,10 @@
                                 {% else %}
                                     <img class="img-fluid mx-1  rounded-3" style="max-width: 150px; max-height: 150px;" src="{{ asset("images/no_avatar.png")|imagine_filter('petite_vignette') }}" alt="">
                                 {% endif%}
-                                {{ post.author.username }}
+                                <a class="text-light text-decoration-none" href="{{  path('app_profil', {'id': post.author.id}) }}">
+                                    {{ post.author.username }}
+                                </a>
+
                             </div>
 
 
@@ -77,6 +84,7 @@
                             <a href="{{ path("app_show",{id:post.id}) }}" class="btn btn-light mt-3"><i class="bi bi-caret-right-fill"></i></a>
                             {% if app.user %}
                             <a href="{{ path("app_retweet", {id:post.id}) }}" class="btn btn-light mt-3"><i class="bi-megaphone"></i></a>
+
                             {% endif %}
 
 
@@ -87,6 +95,8 @@
             </div>
         {% endfor %}
     </div>
+
+    <script src="{{ asset('like.js') }}"></script>
 
 
 

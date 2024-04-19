@@ -30,16 +30,20 @@ class Comment
     #[ORM\JoinColumn(nullable: false)]
     private ?User $author = null;
 
-    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'comment')]
+    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'comment', orphanRemoval: true)]
     private Collection $image;
 
     #[ORM\OneToMany(targetEntity: ReplyComment::class, mappedBy: 'comment', orphanRemoval: true)]
     private Collection $replyComments;
 
+    #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'comment', orphanRemoval: true)]
+    private Collection $likes;
+
     public function __construct()
     {
         $this->image = new ArrayCollection();
         $this->replyComments = new ArrayCollection();
+        $this->likes = new ArrayCollection();
     }
 
 
@@ -155,6 +159,49 @@ class Comment
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Like>
+     */
+    public function getLikes(): Collection
+    {
+        return $this->likes;
+    }
+
+    public function addLike(Like $like): static
+    {
+        if (!$this->likes->contains($like)) {
+            $this->likes->add($like);
+            $like->setComment($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLike(Like $like): static
+    {
+        if ($this->likes->removeElement($like)) {
+            // set the owning side to null (unless already changed)
+            if ($like->getComment() === $this) {
+                $like->setComment(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isLikedBy(User $user):bool
+    {
+        $isLiked = false;
+        foreach ($this->likes as $like)
+        {
+            if($like->getAuthor() === $user)
+            {
+                $isLiked = true;
+            }
+        }
+        return $isLiked;
     }
 
 

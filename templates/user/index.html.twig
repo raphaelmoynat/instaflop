@@ -1,20 +1,68 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello UserController!{% endblock %}
+
+{% block title %}Profil de {{ user.username }}{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body text-center">
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+                <div class="mt-4">
+                    {% if user.image is empty %}
+                        <img class="img-fluid mx-1 rounded-circle" style="max-width: 150px; max-height: 150px;" src="{{ asset("images/no_avatar.png")|imagine_filter('vignette_post') }}" alt="">
+                        {% if app.user.id == user.id %}
+                            {% form_theme form 'bootstrap_5_layout.html.twig' %}
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/Users/raphael/Desktop/dev web/instaflop/src/Controller/UserController.php</code></li>
-        <li>Your template at <code>/Users/raphael/Desktop/dev web/instaflop/templates/user/index.html.twig</code></li>
-    </ul>
-</div>
+                            <h3 class="card-title">Ajouter une photo de profil</h3>
+                            <div class="d-flex justify-content-center">
+                                {{ form_start(form, {attr:{action:path('add_user_avatar', {id:user.id})}}) }}
+                                {{ form_row(form.imageFile) }}
+                                <button type="submit" class="btn btn-success">Ajouter</button>
+                                {{ form_end(form) }}
+                            </div>
+
+
+                        {% endif %}
+
+                    {% else %}
+                    {% for image in user.image %}
+                        <div class="mb-3">
+                            <h4>Photo de profil : <a href="{{ path("delete_user_avatar",{id:image.id}) }}" class="btn btn-danger">Supprimer</a></h4>
+                            <img class="img-fluid rounded-3" style="max-width: 150px; max-height: 150px;" src="{{ vich_uploader_asset(image)|imagine_filter('vignette_post') }}" alt="">
+                        </div>
+                    {% endfor %}
+                    {% endif %}
+                    <hr class="my-4">
+
+                    <h3 class="card-text mb-3">Nom d'utilisateur : {{ user.username }}</h3>
+
+
+                    {% if user.biography is not empty %}
+                    <h4 class="card-text mb-3"><b>Bio :</b> <span class="text-orange">{{ user.biography }}</span></h4>
+                    {% endif %}
+
+
+                    <div class="text-center mt-3">
+                        <a href="{{ path('app_followers_user', {'id': user.id}) }}" class="btn btn-primary">Abonnés : {{ user.followers.count }}</a>
+                        <a href="{{ path('app_follow_user', {'id': user.id}) }}" class="btn btn-primary">Abonnements : {{ user.follow.count }}</a>
+
+                        {% if app.user.id == user.id %}
+                            <a href="{{ path('edit_profil') }}" class="btn btn-secondary">Modifier</a>
+                        {% else %}
+                            {% if isFollowed %}
+                                <a class="btn btn-danger" href="{{ path('app_unfollow', {'id': user.id}) }}">Ne plus suivre</a>
+                            {% else %}
+                                <a class="btn btn-success" href="{{ path('app_follow', {'id': user.id}) }}">Suivre</a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
 {% endblock %}
+

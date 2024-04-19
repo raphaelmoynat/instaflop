@@ -1,10 +1,13 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+    <a href="{{ path("app_post") }}" class="btn btn-primary mt-1">
+        <i class="bi bi-arrow-left"></i>
+    </a>
 
     <div class="row">
 
-        <!-- Post -->
+
         <div class="d-flex flex-column justify-content-center align-items-center mb-3">
             <div class="card h-100 col-6 rounded-card bg-border" style="min-height: 150px;">
 
@@ -41,6 +44,9 @@
 
                         </div>
                     {% endif %}
+                    <div class="d-flex justify-content-end">
+                        {% include 'like/button.html.twig' with { routeName:"app_like", object:post } %}
+                    </div>
                 </div>
                 <div class="card-footer d-flex justify-content-between bg-insta">
                     <small class="text-muted mt-3 d-flex flex-column">
@@ -52,42 +58,54 @@
                             {% else %}
                                 <img class="img-fluid mx-1  rounded-3" style="max-width: 150px; max-height: 150px;" src="{{ asset("images/no_avatar.png")|imagine_filter('petite_vignette') }}" alt="">
                             {% endif%}
-                            {{ post.author.username }}
+                            <a class="text-light text-decoration-none" href="{{  path('app_profil', {'id': post.author.id}) }}">
+                                {{ post.author.username }}
+                            </a>
                         </div>
                         <div class="text-white">{{ post.createdAt|date("d/m/Y H:i") }}</div>
                     </small>
                     <div class="d-flex justify-content-center align-items-center">
+                        {% if app.user == post.author %}
                         <a href="{{ path("app_edit_post", {id: post.id}) }}" class="btn btn-light mt-3"><i class="bi bi-pencil"></i></a>
                         <a href="{{ path("app_delete_post", {id: post.id}) }}" class="btn btn-light mt-3"><i class="bi bi-trash3"></i></a>
                         <a href="{{ path('post_image', {id:post.id}) }}" class="btn btn-light mt-3"><i class="bi bi-image"></i></a>
+                        {% endif %}
+
                     </div>
                 </div>
             </div>
         </div>
 
+        {% if app.user %}
         <div class="container d-flex flex-column col-6 justify-content-center  mb-3">
             {{ form_start(form, {attr: {action:path("app_comment_create", {id:post.id})}}) }}
 
 
             {{ form_widget(form.content, {'attr': {'class': 'form-control flex-grow-1 ', 'rows': 2, 'placeholder': 'Ajouter un commentaire...' }}) }}
+            <div class="d-flex justify-content-end">
             <button type="submit" class="btn btn-success ml-2">Commenter</button>
+            </div>
             {{ form_end(form) }}
         </div>
+        {% endif %}
 
+            {% if post.comments is not empty %}
             <h3 class="mt-4 d-flex flex-column justify-content-center align-items-center mb-3">Commentaires :</h3>
+            {% endif %}
             <div class="row">
                 <div class="container d-flex flex-column justify-content-center col-6 mb-3">
 
                 {% for comment in post.comments|reverse %}
                     <div class="mb-4">
                         <div class="card">
-
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <p class="card-text">{{ comment.content }}</p>
-                                    </div>
+                            {% for image in comment.image %}
+                                <div class="d-flex justify-content-center">
+                                    <img class="img-fluid rounded-3" style="height: 150px; object-fit: cover;" src="{{ vich_uploader_asset(image)|imagine_filter('vignette_comment') }}" alt="">
                                 </div>
+                            {% endfor %}
+
+                            <div class="card-body d-flex  justify-content-center">
+                                        <p class="card-text">{{ comment.content }}</p>
                             </div>
                             <div class="card-footer d-flex justify-content-between align-items-center bg-insta">
                                 <div>
@@ -99,7 +117,10 @@
                                         {% else %}
                                             <img class="img-fluid mx-1  rounded-3" style="max-width: 150px; max-height: 150px;" src="{{ asset("images/no_avatar.png")|imagine_filter('petite_vignette') }}" alt="">
                                         {% endif%}
-                                        <div class="text-light">{{ comment.author.username }}</div>
+                                        <a class="text-light text-decoration-none" href="{{  path('app_profil', {'id': comment.author.id}) }}">
+                                            {{ comment.author.username }}
+                                        </a>
+
 
                                     </div>
 
@@ -108,34 +129,51 @@
 
 
                                 <div class="btn-group " role="group">
+                                    {% if app.user == comment.author %}
                                     <a href="{{ path("edit_comment",{id:comment.id}) }}" class="btn btn-light"><i class="bi bi-pencil"></i></a>
                                     <a href="{{ path("delete_comment",{id:comment.id}) }}" class="btn  btn-light"><i class="bi bi-trash3"></i></a>
                                     <a href="{{ path("add_comment_image", {id: comment.id}) }}" class="btn  btn-light"><i class="bi bi-image"></i></a>
+
                                     <button class="btn  btn-light" data-comment-id="{{ comment.id }}" data-bs-toggle="collapse" data-bs-target="#replyForm-{{comment.id}}">Reply</button>
+
+
+                                    {% endif %}
+                                    {% include 'like/button.html.twig' with { routeName:"comment_like", object:comment } %}
                                 </div>
                             </div>
                         </div>
                             {% for replyComment in comment.replyComments %}
-                            <div class="card m-1">
+                                <div class="d-flex justify-content-end">
+                            <div class="card mt-2 col-8">
 
-                                <div class="card-body">
+                                <div class="card-body d-flex  justify-content-center">
 
 
-                                            <p class="card-text">{{ replyComment.content }}</p>
+                                    <p class="card-text">{{ replyComment.content }}</p>
 
 
                                 </div>
                                 <div class="card-footer d-flex justify-content-between align-items-center bg-insta">
-                                    <p class="card-text text-light">{{ replyComment.author.username }}</p>
+                                    <a class="text-light text-decoration-none" href="{{  path('app_profil', {'id': replyComment.author.id}) }}">
+                                        {{ replyComment.author.username }}
+                                    </a>
+                                    {% if app.user == comment.author %}
+
+                                    <a href="{{ path("delete_replycomment",{id:replyComment.id}) }}" class="btn  btn-light"><i class="bi bi-trash3"></i></a>
+
+                                    {% endif %}
                                 </div>
 
                             </div>
+                                </div>
                             {% endfor %}
 
                         {{ form_start(replyForms['replyForm_' ~ comment.id], {'attr':{'id': 'replyForm-'~ comment.id,'class': 'comment-form collapse', 'action': path("app_reply_comment", {'id': comment.id})}}) }}
-                        <div class="form-group mb-3">
-                            {{ form_widget(replyForms['replyForm_' ~ comment.id].content, {'attr': {'class': 'form-control', 'placeholder': 'Add a reply'}}) }}
-                            <button type="submit" class="btn btn-primary">Reply</button>
+                        <div class="form-group my-3">
+                            {{ form_widget(replyForms['replyForm_' ~ comment.id].content, {'attr': {'class': 'form-control', 'placeholder': 'Ajouter une réponse'}}) }}
+                            <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">Répondre</button>
+                            </div>
                         </div>
                         {{ form_end(replyForms['replyForm_' ~ comment.id]) }}
                     </div>
@@ -145,5 +183,8 @@
             </div>
         </div>
     </div>
+
+    <script src="{{ asset('like.js') }}"></script>
+
 
 {% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    Abonnements de {{ user.username }}
+{% endblock %}
+
+{% block body %}
+    <div class="mt-5 text-center container">
+        <div class="d-flex align-items-center justify-content-center">
+            <a href="{{ path('app_profil', {'id': user.id}) }}" class=" m-2 btn btn-secondary"><i class="bi bi-arrow-90deg-left"></i></a>
+            <h1>Abonnements de <span class="">{{ user.username }}</span></h1>
+        </div>
+
+        {% if follows is empty %}
+            <h3 class="mt-5">Cet utilisateur n'a pas d'abonnements.</h3>
+        {% else %}
+            <div class="d-flex flex-column align-items-center">
+            {% for follow in follows %}
+                <div class="card col-4 my-3">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            {% if follow.image is not empty %}
+                                {% for image in follow.image %}
+                                    <img class="img-fluid rounded-circle mb-3" style=" object-fit: cover;" src="{{ vich_uploader_asset(image)|imagine_filter('petite_vignette') }}" alt="">
+                                {% endfor %}
+                            {% else %}
+                                <img class="img-fluid mx-1  rounded-3 mb-3" style="max-width: 150px; max-height: 150px;" src="{{ asset("images/no_avatar.png")|imagine_filter('petite_vignette') }}" alt="">
+                            {% endif%}
+                            <h5 class="card-text">Nom d'utilisateur : {{ follow.username }}</h5>
+
+
+                        </div>
+                        <a href="{{ path('app_profil', {'id': follow.id}) }}" class="btn btn-primary">Voir profil</a>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

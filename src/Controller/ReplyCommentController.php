@@ -45,6 +45,25 @@ class ReplyCommentController extends AbstractController
         return $this->redirectToRoute("app_show", ["id" => $post->getId()]);
     }
 
+    #[Route('/replycomment/delete/{id}', name: 'delete_replycomment')]
+    public function delete(ReplyComment $replyComment, EntityManagerInterface $manager): Response
+    {
+        if($this->getUser() === $replyComment->getAuthor()) {
+
+            $comment = $replyComment->getComment();
+            $post = $comment->getPost();
+
+            $manager->remove($replyComment);
+            $manager->flush();
+
+            return $this->redirectToRoute('app_show', ["id" => $post->getId()]);
+        }else{
+            return $this->redirectToRoute('app_post');
+        }
+
+
+    }
+
 
 
 
